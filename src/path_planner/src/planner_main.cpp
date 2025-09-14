@@ -1283,6 +1283,8 @@ std::vector<Viewpoint> PathPlanner::generate_viewpoint(int id) {
     }
 
     if (GS.global_vertices[id].type == 3) {
+        return output_vps; // TEST - DROP JUNCTION VPTS
+        
         // joint
         const Eigen::Vector3d p1 = GS.global_vertices[id].position;
         int N_nbs = GS.global_adj[id].size();

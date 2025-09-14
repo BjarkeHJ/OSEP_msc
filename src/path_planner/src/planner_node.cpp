@@ -63,6 +63,8 @@ public:
 
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr seen_voxels_pub_;
     
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr prelim_ver_pub_;
+
     rclcpp::TimerBase::SharedPtr run_timer_;
     rclcpp::TimerBase::SharedPtr traced_timer_;
 
@@ -113,6 +115,8 @@ void PlannerNode::init() {
     adjusted_vpts_sub_ = this->create_subscription<nav_msgs::msg::Path>("/planner/viewpoints_adjusted", 10, std::bind(&PlannerNode::adjusted_viewpoints_callback, this, std::placeholders::_1)); 
 
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/isaac/odom", 10, std::bind(&PlannerNode::odom_callback, this, std::placeholders::_1));
+
+    prelim_ver_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(topic_prefix+"/prelim_vertices", 10);
 
     run_timer_ = this->create_wall_timer(std::chrono::milliseconds(run_timer_ms), std::bind(&PlannerNode::run, this));
     traced_timer_ = this->create_wall_timer(std::chrono::milliseconds(traced_ms), std::bind(&PlannerNode::publish_traced_path, this));
@@ -299,6 +303,22 @@ void PlannerNode::publish_gskel() {
             }
         }
         adj_pub_->publish(lines);
+    }
+
+    if (!planner->GS.prelim_vertices.empty()) {
+        sensor_msgs::msg::PointCloud2 prelim_msg;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr prever_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        pcl::PointXYZ pt;
+        for (auto& ver : planner->GS.prelim_vertices) {
+            pt.x = ver.position.x();
+            pt.y = ver.position.y();
+            pt.z = ver.position.z();
+            prever_cloud->points.push_back(pt);
+        }
+        pcl::toROSMsg(*prever_cloud, prelim_msg);
+        prelim_msg.header.frame_id = global_frame_id;
+        prelim_msg.header.stamp = now();
+        prelim_ver_pub_->publish(prelim_msg);
     }
 }
 

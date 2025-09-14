@@ -203,7 +203,8 @@ private:
     pcl::KdTreeFLANN<pcl::PointXYZ> global_pts_kdtree;
 
     /* Params */
-    int max_obs_wo_conf = 3; // Maximum number of runs without passing conf check before discarding...
+    // int max_obs_wo_conf = 3; // Maximum number of runs without passing conf check before discarding...
+    int max_obs_wo_conf = 5; // Maximum number of runs without passing conf check before discarding...
     double fuse_dist_th = 3.0;
     double fuse_conf_th = 0.1;
     double kf_pn = 0.0001;
@@ -231,7 +232,7 @@ private:
     const int BEAM_WIDTH = 3;
     const double REPLAN_THRESH = 0.0;
 
-    const double LEAF_W = 10.0;
+    const double LEAF_W = 20.0;
     // const double LEAF_W = 3.0;
     const double COVERAGE_W = 10.0;
     const double BRANCH_W = 5.0;
